@@ -1,0 +1,39 @@
+主题：讨论语言模型的应用前景
+
+- llm(prompt): 使用语言模型按照prompt内容生成str并返回
+- endgen()：停止生成并输出结果
+- sysinput.find_all(tag_name):根据tag_name返回具有.text,.attributes等属性的的beautifulSoup Element
+- <log cmd="a=B"/>会将B赋值给a,同时被保留在渲染后的输出里作为日志引导后续输出
+- 扩展语法：渲染输出后请移除形如{%sysinput%}...{%endsysinput%}的块
+- 请保持模板中的换行情况
+- 请不要添加更多的代码，直接开始生成输出
+
+##   <topic value="金融，医疗，教育，法律，创作，营销">
+
+请按照如下jinja模板执行，并输出为一个```xml ...``` block
+```jinja
+{% sysinput %}
+
+<topic>金融</topic>
+<topic>医疗</topic>
+<topic>教育</topic>
+<topic>法律</topic>
+<topic>创作</topic>
+<topic>营销</topic>
+
+{% endsysinput %}
+
+{% for i,topic in enumerate(sysinput.find_all("topic")) %}
+    {% if i==4 %}
+      {{endgen()}}
+    {% endif %}  
+  <output i="{{ i }}" 
+      topic="{{topic.text}}"
+  >
+    <log cmd="line_count={{int(llm('选择一个1-7之间的合适数字'))}}"/>
+    {% for i in range(line_count) %}
+    <line>{{llm("探讨分析内容，不超过100字")}}</line>
+    {% endfor %}
+  </output>
+{% endfor %}
+```
