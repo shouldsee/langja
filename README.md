@@ -1,4 +1,4 @@
-# langja
+# langja (琅琊)
 A jinja2-like renderer powerer by LLM
 
 - examples: see  [./langja/examples/](./langja/examples/)
