@@ -1,0 +1,73 @@
+主题：讨论语言模型的应用前景
+
+- llm(prompt,max_token=1000): 
+  - 使用语言模型按照prompt内容生成str并返回
+  - max_token:最大输出的token数量
+- endgen()：返回<endgen/>并在此处停止生成且输出结果
+- sysinput.find_all(tag_name):根据tag_name返回具有.text,.attributes等属性的的beautifulSoup Tag
+- BeautifulSoup.decode_contents()
+   - Renders the contents of this tag as a Unicode string, including the outer tag
+- <log cmd="a=B"/>会将B赋值给a,同时被保留在渲染后的输出里作为日志引导后续输出
+- 扩展语法：{{template_str|render}}:把template_str的值作为一个扩展后的jinja2 template来渲染其输出.
+- 扩展语法：对于形如{%rawstr x%}...{%endrawstr%}的块,请将...赋值给x, 在渲染输出后请移除该块
+- 扩展语法：对于形如{%sysinput%}...{%endsysinput%}的块，在渲染输出后请移除该块
+- 请保持模板中的换行情况
+- 请不要添加更多的代码，直接开始生成输出
+
+##   <topic value="金融，医疗，教育，法律，创作，营销">
+
+请按照如下jinja模板执行，并输出为一个```xml ...``` block
+```jinja
+{%rawstr write_section%}
+  <log cmd="line_count={{int(llm('选择一个1-7之间的合适数字'))}}"/>
+    {% for i in range(line_count) %}
+    <line>{{llm("分析过程和结果",100)}}</line>
+    {% endfor %}
+{%endrawstr%}
+
+{% sysinput %}
+
+<topic>金融</topic>
+<topic>医疗</topic>
+<topic>教育</topic>
+<topic>法律</topic>
+<topic>创作</topic>
+<topic>营销</topic>
+
+<section>
+  不使用大模型的负面后果:
+  {{write_section|render}}
+</section>
+<section>
+  使用大模型的负面后果:
+  {{write_section|render}}
+</section>
+<section>
+  大模型相对于传统模型的优势:
+  {{write_section|render}}
+</section>
+<section>
+  大模型相对于传统模型的劣势:
+  {{write_section|render}}
+</section>
+<section>
+  使用大模型是否利大于弊:
+  {{write_section|render}}
+</section>
+
+
+{% endsysinput %}
+
+{% for i,topic in enumerate(sysinput.find_all("topic")) %}
+    {% if i==4 %}
+      {{endgen()}}
+    {% endif %}  
+  <output i="{{ i }}" 
+      topic="{{topic.text}}"
+  >
+  {% for j,section in enumerate(sysinput.find_all("section")) %}
+    {{section.decode_contents()|render}}
+  {% endfor %}
+  </output>
+{% endfor %}
+```
