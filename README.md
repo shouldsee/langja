@@ -5,4 +5,5 @@ A jinja2-like renderer powerer by LLM
 
 ### Feature
 - LLM rendered: prompts to induce llm to render a structured output
+  - [TODO] benchmark different llm for their performance in mimicking a jinja renderer
 - [TODO] python rendered: prompts that only calls LLM when needed.
