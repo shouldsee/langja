@@ -1,0 +1,31 @@
+### 这个prompt展示了使用jinja的语法去设定参数
+
+主题：讨论语言模型的应用前景
+
+- llm(prompt): 使用语言模型按照prompt内容生成str并返回
+- endgen()：停止生成并输出结果
+- 扩展语法：渲染输出后请移除形如{%sysinput%}...{%endsysinput%}的块
+- 请保持模板中的换行情况
+- 请不要添加更多的代码，直接开始生成输出
+
+请按照如下jinja模板执行，并输出为一个```xml ...``` block
+```jinja
+{% sysinput %}
+
+{% set topic_list ="金融，医疗，教育，法律，创作，营销".split(",") %}
+
+{% endsysinput %}
+
+{% for i,topic in enumerate(topic_list) %}
+    {% if i==4 %}
+      {{endgen()}}
+    {% endif %}  
+  <output i="{{ i }}" 
+      topic="{{topic}}"
+  >
+    {% for i in range(5) %}
+    <line>{{llm("探讨分析内容，不超过100字")}}</line>
+    {% endfor %}
+  </output>
+{% endfor %}
+```
