@@ -1,25 +1,28 @@
 主题：讨论语言模型的应用前景
 
-- llm(prompt,max_token=1000): 
+- llm(prompt,max_token=1000,keep_prompt=False): 
   - 使用语言模型按照prompt内容生成str并返回
   - max_token:最大输出的token数量
+  - keep_prompt: 如果为True,则在输出中保留prompt. 如果为False,则在输出中去除prompt
 - endgen()：返回<endgen/>并在此处停止生成且输出结果
 - sysinput.find_all(tag_name):根据tag_name返回具有.text,.attributes等属性的的beautifulSoup Tag
 - BeautifulSoup.decode_contents()
    - Renders the contents of this tag as a Unicode string, including the outer tag
-- <log cmd="a=B"/>会将B赋值给a,同时被保留在渲染后的输出里作为日志引导后续输出
 - 扩展语法：{{template_str|render}}:把template_str的值作为一个扩展后的jinja2 template来渲染其输出.
 - 扩展语法：对于形如{%rawstr x%}...{%endrawstr%}的块,请将...赋值给x, 在渲染输出后请移除该块
 - 扩展语法：对于形如{%sysinput%}...{%endsysinput%}的块，在渲染输出后请移除该块
+- 渲染{{...ANY_EXPR}}时请这样处理：在渲染{{...ANY_EXPR}}的块时,如果...ANY_EXPR中存在无法理解或执行的任意变量z,请渲染输出为<error msg="Unable to find 'z' when rendering {{...ANY_EXPR}}"/>.注意,此处的...ANY_EXPR可以是任意字符串
 - 请保持模板中的换行情况
 - 请不要添加更多的代码，直接开始生成输出
 
 ##   <topic value="金融，医疗，教育，法律，创作，营销">
 
 请按照如下jinja模板执行，并输出为一个```xml ...``` block
-```jinja
+```jinja2
+<jinja>
 {%rawstr write_section%}
-  <log cmd="line_count={{int(llm('选择一个1-7之间的合适数字'))}}"/>
+   {% set line_count = int(llm('选择一个1-7之间的合适数字') %}
+   <log line_count="{{line_count}}"/>
     {% for i in range(line_count) %}
     <line>{{llm("分析过程和结果",100)}}</line>
     {% endfor %}
@@ -58,16 +61,17 @@
 
 {% endsysinput %}
 
+
 {% for i,topic in enumerate(sysinput.find_all("topic")) %}
+    {{some_var}}
     {% if i==4 %}
       {{endgen()}}
     {% endif %}  
   <output i="{{ i }}" 
       topic="{{topic.text}}"
   >
-  {% for j,section in enumerate(sysinput.find_all("section")) %}
-    {{section.decode_contents()|render}}
-  {% endfor %}
+  {{llm("请谈一谈你的看法",100)}}
   </output>
 {% endfor %}
+</jinja>
 ```
